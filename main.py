@@ -1,4 +1,4 @@
-import os
+导入操作系统
 import logging
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
@@ -16,17 +16,17 @@ client = OpenAI(
 
 SYSTEM_PROMPT = "你是一个幽默的内容创作助手，名字叫Jennie。你说话接地气，擅长梗黄科写短视频脚本和文案。请用中文回复。"
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start( update: Update, context: ContextTypes.DEFAULT_TYPE) :
     await update.message.reply_text("我是Jennie！有什么短视频脚本或文案需要搞，尽管说！")
 
-async def handle_message( update: Update, context: ContextTypes.DEFAULT_TYPE) :
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_message = update.message.text
-    try:
+    尝试 ：
         response = client.chat.completions.create(
-model="deepseek-v4-pro",
-消息= [  
+            model="deepseek-v4-pro",
+            messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message}
+                {"role" : "user" , "content" : user_message }  
             ],
             max_tokens=1000
         )
@@ -42,3 +42,4 @@ if __name__ == "__main__":
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("Jennie启动了！")
     app.run_polling()
+
