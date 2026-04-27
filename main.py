@@ -5,12 +5,11 @@ from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filte
 from openai import AsyncOpenAI
 
 # 从环境变量读取配置
-
-TELEGRAM_TOKEN = os.environ.get ( " TELEGRAM_TOKEN" )  
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 
 # 初始化 DeepSeek 客户端
-client = AsyncOpenAI(
+客户端 = AsyncOpenAI（  
     api_key=DEEPSEEK_API_KEY,
     base_url="https://api.deepseek.com"
 )
@@ -25,11 +24,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_text = update.effective_message.text
     response = await client.chat.completions.create(
         model="deepseek-chat",
-        messages=[{"role": "user", "content": user_text}]
+messages= [{"role" : "user" , "content" : user_text }]  
     )
     reply = response.choices[0].message.content
     await context.bot.send_message(
-        chat_id=update.effective_chat.id,
+
+chat_id= update.effective_chat.id ，
         text=reply
     )
 
