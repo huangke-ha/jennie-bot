@@ -1,6 +1,6 @@
 import os
 import logging
-从 telegram 导入更新
+from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from openai import OpenAI
 
@@ -42,4 +42,3 @@ if __name__ == "__main__":
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("Jennie启动了！")
     app.run_polling()
-
