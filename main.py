@@ -23,8 +23,8 @@ async def handle_message( update: Update, context: ContextTypes.DEFAULT_TYPE) :
     user_message = update.message.text
     try:
         response = client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[
+model="deepseek-v4-pro",
+消息= [  
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
