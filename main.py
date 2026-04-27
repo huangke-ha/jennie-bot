@@ -1,6 +1,6 @@
 import os
 import logging
-from telegram import Update
+从 telegram 导入更新
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
 from openai import OpenAI
 
@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 
-客户端 = OpenAI（  
+client = OpenAI(
     api_key=DEEPSEEK_API_KEY,
     base_url="https://api.deepseek.com"
 )
@@ -25,10 +25,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         response = client.chat.completions.create(
             model="deepseek-v4-pro",
             messages=[
-                {"role" : "system" , "content" : SYSTEM_PROMPT } ,
+                {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": user_message}
             ],
-max_tokens= 1000  
+            max_tokens=1000
         )
         reply = response.choices[0].message.content
         await update.message.reply_text(reply)
@@ -42,3 +42,4 @@ if __name__ == "__main__":
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     print("Jennie启动了！")
     app.run_polling()
+
