@@ -1,27 +1,44 @@
 import os
+import logging
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes  
-from openai import AsyncOpenAI
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from openai import OpenAI
 
-# 读取密钥
-TOKEN = os.getenv("TELEGRAM_TOKEN")
-DEEP_KEY = os.getenv("DEEPSEEK_API_KEY")
+logging.basicConfig(level=logging.INFO)
 
-client = AsyncOpenAI(api_key=DEEP_KEY, base_url="https://api.deepseek.com")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+
+client = OpenAI(
+    api_key=DEEPSEEK_API_KEY,
+    base_url="https://api.deepseek.com"
+)
+
+SYSTEM_PROMPT = "你是一个幽默的内容创作助手，名字叫Jennie。你说话接地气，擅长梗黄科写短视频脚本和文案。请用中文回复。"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("我准备好了！发消息给我吧！")
+    await update.message.reply_text("我是Jennie！有什么短视频脚本或文案需要搞，尽管说！")
 
-async def chat(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = update.message.text
-    resp = await client.chat.completions.create(
-        model="deepseek-chat",
-        messages=[{"role":"user","content":msg}]
-    )
-    await update.message.reply_text(resp.choices[0].message.content)
+async def handle_message( update: Update, context: ContextTypes.DEFAULT_TYPE) :
+    user_message = update.message.text
+    try:
+        response = client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_message}
+            ],
+            max_tokens=1000
+        )
+        reply = response.choices[0].message.content
+        await update.message.reply_text(reply)
+    except Exception as e:
+        await update.message.reply_text("出错了，稍等一下再试试！")
+        logging.error(f"Error: {e}")
 
 if __name__ == "__main__":
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, chat))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    print("Jennie启动了！")
     app.run_polling()
