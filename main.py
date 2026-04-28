@@ -71,8 +71,10 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         img = PIL.Image.open(io.BytesIO(image_bytes))
         response = gemini.generate_content([caption, img])
         reply = response.text
-        chat_history[user_id].append({"role": "user", "content": f"[图片] {caption}"})
+        chat_history[user_id].append({"role": "user", "content": "[图片] " + caption})
         chat_history[user_id].append({"role": "assistant", "content": reply})
+        if len(chat_history[user_id]) > MAX_ROUNDS * 2:
+            chat_history[user_id] = chat_history[user_id][-MAX_ROUNDS * 2:]
         await update.message.reply_text(reply)
     except Exception as e:
         await update.message.reply_text("图片识别出错了，稍等再试！")
