@@ -36,12 +36,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     user_message = update.message.text or ""
-
     chat_history[user_id].append({"role": "user", "content": user_message})
-
     if len(chat_history[user_id]) > MAX_ROUNDS * 2:
         chat_history[user_id] = chat_history[user_id][-MAX_ROUNDS * 2:]
-
     try:
         messages = [{"role": "system", "content": SYSTEM_PROMPT}] + chat_history[user_id]
         response = client.chat.completions.create(
@@ -59,22 +56,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     caption = update.message.caption or "请描述这张图片，用中文回复"
-
     photo = update.message.photo[-1]
     file = await context.bot.get_file(photo.file_id)
-
     async with httpx.AsyncClient() as hclient:
         resp = await hclient.get(file.file_path)
         image_bytes = resp.content
-
     try:
         img = PIL.Image.open(io.BytesIO(image_bytes))
         response = gemini.generate_content([caption, img])
         reply = response.text
-        chat_history[user_id].append({"role": "user", "content": "[图片] " + caption})
-        chat_history[user_id].append({"role": "assistant", "content": reply})
-        if len(chat_history[user_id]) > MAX_ROUNDS * 2:
-            chat_history[user_id] = chat_history[user_id][-MAX_ROUNDS * 2:]
         await update.message.reply_text(reply)
     except Exception as e:
         await update.message.reply_text("图片识别出错了，稍等再试！")
